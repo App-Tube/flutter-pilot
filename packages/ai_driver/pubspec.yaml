@@ -1,0 +1,14 @@
+name: ai_driver
+description: In-app agent for flutter_pilot. Registers ext.aiDriver.* VM service extensions so an MCP server can find widgets, tap, type, wait for idle and take screenshots in-process.
+version: 0.1.0
+repository: https://github.com/App-Tube/flutter-pilot
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+  flutter: ">=3.35.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter

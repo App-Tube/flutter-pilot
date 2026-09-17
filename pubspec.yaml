@@ -1,0 +1,9 @@
+name: flutter_pilot_workspace
+description: Dart workspace for the flutter_pilot MCP server and the ai_driver in-app package.
+publish_to: none
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/ai_driver
+  - packages/flutter_pilot
+  - example/counter

@@ -1,0 +1,18 @@
+name: flutter_pilot
+description: MCP server that drives a Flutter app in-process over the Dart VM service (launch, hot reload, tap, type, screenshot) with timings.
+version: 0.1.0
+repository: https://github.com/App-Tube/flutter-pilot
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+executables:
+  flutter_pilot: flutter_pilot
+dependencies:
+  args: ^2.6.0
+  dart_mcp: ^0.5.2
+  path: ^1.9.0
+  vm_service: ^15.0.0
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
