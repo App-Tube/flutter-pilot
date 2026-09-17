@@ -1,0 +1,19 @@
+{
+  "name": "count_and_greet",
+  "description": "Tap the FAB three times, type a name, check the greeting, capture the counter. Runs in ~1 s.",
+  "vars": {
+    "name": "Pilot"
+  },
+  "defaults": {
+    "settleTimeoutMs": 300
+  },
+  "steps": [
+    "wait_for key:increment",
+    "tap key:increment x3",
+    "expect text:3",
+    "enter_text key:name_field :: ${name}",
+    "expect text:Hello, ${name}",
+    "get_text key:counter_text as count",
+    "screenshot"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "open_details",
+  "description": "Navigate to the details route and back, asserting the route name each time. Shows expect_route, back and an optional step that is absent on this screen.",
+  "steps": [
+    "wait_for key:open_details",
+    "tap key:open_details",
+    "expect_route /details",
+    "expect key:details_text",
+    "?tap text:Not on this screen",
+    "back",
+    "expect_route /",
+    "expect key:increment"
+  ]
+}

@@ -17,6 +17,23 @@ example/counter         demo app with test_driver/ai_app.dart entrypoint
 .mcp.json               Claude Code picks this up when the repo is the project root
 ```
 
+## Quick start (5 minutes, nothing to configure)
+
+Prerequisites: Flutter 3.35+ (3.41 tested), Xcode with an iOS simulator and/or Android SDK with an emulator,
+`~/.pub-cache/bin` on your PATH.
+
+```bash
+git clone https://github.com/App-Tube/flutter-pilot.git && cd flutter-pilot
+flutter pub get
+cd packages/flutter_pilot
+dart run bin/flutter_pilot.dart devices                                   # simulators and their state
+dart run bin/flutter_pilot.dart smoke                                     # boots a simulator, benchmarks the counter app
+dart run bin/flutter_pilot.dart flow --root ../../example/counter \
+  --file test_driver/flows/count_and_greet.json --var name=Ada            # one multi-step flow, ~1.5 s after launch
+```
+Then open the repo in Claude Code: the checked-in `.mcp.json` starts the server from source, and
+`launch_app(root: "<repo>/example/counter", device: "<udid from list_devices>")` gives you the same app to drive by hand.
+
 ## Use it on any Flutter app
 
 1. Add the in-app package as a dev dependency (git for now, pub.dev later):
@@ -70,6 +87,11 @@ It prints launch timings, the current route, the widget tree and saves a screens
 | interact | `run_flow`, `tap`, `long_press`, `drag`, `scroll_into_view`, `enter_text`, `back`, `set_time_dilation` |
 
 ### The fast path: `run_flow`
+
+Two ready-made recipes live in [`example/counter/test_driver/flows/`](example/counter/test_driver/flows/):
+`count_and_greet.json` (tap ×3, type, assert, capture, screenshot) and `open_details.json` (navigate, `expect_route`,
+optional step, `back`). Copy one into your app's `test_driver/flows/`, swap the finders, and run it with
+`run_flow(file: ...)` from Claude Code or `flutter_pilot flow --root <app> --file <flow>` from a terminal.
 
 Driving an app one tool call per tap is slow for a reason that has nothing to do with the tap (2 ms): every call is
 a model round trip of several seconds. Measured on a large production wallet app's onboarding, 2026-09-17: 30 single calls took 8m30s;

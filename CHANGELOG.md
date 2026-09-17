@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- CLI `flutter_pilot flow`: launch an app and run one flow file from the terminal.
+- Example flow recipes for the counter app under `example/counter/test_driver/flows/`.
+- README quick start.
+
 ## 0.1.0 — 2026-09-17
 
 First working version. Drive a Flutter app in-process over the Dart VM service from an MCP client.

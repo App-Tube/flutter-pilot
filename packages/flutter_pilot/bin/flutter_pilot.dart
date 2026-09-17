@@ -18,6 +18,18 @@ Future<void> main(List<String> argv) async {
     ..addOption('device', help: 'Device id (default: first available iPhone simulator).')
     ..addOption('target', defaultsTo: 'test_driver/ai_app.dart')
     ..addOption('taps', defaultsTo: '20');
+  parser.addCommand('flow')
+    ..addOption('root', help: 'Flutter project to launch.', mandatory: true)
+    ..addOption(
+      'file',
+      help: 'Flow JSON file, relative to root (e.g. test_driver/flows/count_and_greet.json).',
+      mandatory: true,
+    )
+    ..addOption('device', help: 'Device id (default: first available iPhone simulator).')
+    ..addOption('target', defaultsTo: 'test_driver/ai_app.dart')
+    ..addOption('flavor', help: 'Passed as --flavor.')
+    ..addOption('defines', help: 'Passed as --dart-define-from-file (relative to root).')
+    ..addMultiOption('var', help: 'Flow variable, name=value. Repeatable.');
   parser.addCommand('run')
     ..addOption('root', help: 'Flutter project to launch.', mandatory: true)
     ..addOption('device', help: 'Device id (default: first available iPhone simulator).')
@@ -32,8 +44,9 @@ Future<void> main(List<String> argv) async {
 
   final ArgResults args = parser.parse(argv);
   if (args['help'] == true || args.command == null) {
-    stderr.writeln('usage: flutter_pilot [--flutter <path>] <mcp|run|smoke|devices> [options]\n${parser.usage}');
+    stderr.writeln('usage: flutter_pilot [--flutter <path>] <mcp|run|flow|smoke|devices> [options]\n${parser.usage}');
     stderr.writeln('\nrun options:\n${parser.commands['run']!.usage}');
+    stderr.writeln('\nflow options:\n${parser.commands['flow']!.usage}');
     stderr.writeln('\nsmoke options:\n${parser.commands['smoke']!.usage}');
     exitCode = args.command == null ? 64 : 0;
     return;
@@ -77,6 +90,43 @@ Future<void> main(List<String> argv) async {
     case 'run':
       exitCode = await _run(args.command!, flutter);
       return;
+    case 'flow':
+      exitCode = await _flow(args.command!, flutter);
+      return;
+  }
+}
+
+/// Launches an app, runs one flow file, prints the compact result, stops.
+Future<int> _flow(ArgResults s, String flutter) async {
+  final String root = p.normalize(p.absolute(s['root'] as String));
+  final String device = s['device'] as String? ?? await _firstIphone();
+  final Map<String, Object?> vars = <String, Object?>{
+    for (final String kv in s['var'] as List<String>)
+      if (kv.contains('=')) kv.substring(0, kv.indexOf('=')): kv.substring(kv.indexOf('=') + 1),
+  };
+  final PilotSession session = PilotSession(flutterExecutable: flutter, log: stderr.writeln);
+  final Stopwatch sw = Stopwatch()..start();
+  try {
+    try {
+      await session.launch(
+        projectRoot: root,
+        device: device,
+        target: s['target'] as String,
+        flavor: s['flavor'] as String?,
+        definesFile: s['defines'] as String?,
+      );
+    } catch (e) {
+      stderr.writeln('launch failed: $e');
+      return 1;
+    }
+    stderr.writeln('launched in ${sw.elapsedMilliseconds}ms, running ${s['file']}');
+    final Stopwatch flowSw = Stopwatch()..start();
+    final Map<String, Object?> result = await FlowRunner(session).run(file: s['file'] as String, vars: vars);
+    stderr.writeln(const JsonEncoder.withIndent('  ').convert(result));
+    stderr.writeln('flow took ${flowSw.elapsedMilliseconds}ms');
+    return result['ok'] == true ? 0 : 1;
+  } finally {
+    await session.stop();
   }
 }
 
